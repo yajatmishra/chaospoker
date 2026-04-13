@@ -213,23 +213,13 @@ int main() {
 
     int numPlayers = 0, mySeat = 0, startingChips = 0;
     int swapCosts[4] = {};
-    int smallBlind = 1, bigBlind = 2;
+    int bigBlind = 2;
     Card holeCards[2]; int nHole = 0;
     Card board[5]; int nBoard = 0;
     int street = 0;
     int chips[10] = {};
-    int dealerSeat = 0;
-    int handNumber = 0;
     int lastSwapIdx = -1;
     int actionCountThisStreet = 0;
-
-    int oppRaises[10] = {};
-    int oppFolds[10] = {};
-    int oppActions[10] = {};
-    bool oppAlive[10] = {};
-    int activePlayers = 0;
-    bool inPosition = false;
-    int oppRaisesThisStreet = 0;
 
     std::string line;
     while (std::getline(std::cin, line)) {
@@ -243,26 +233,16 @@ int main() {
             std::string tmp;
             iss >> tmp >> numPlayers >> mySeat >> startingChips;
             iss >> swapCosts[0] >> swapCosts[1] >> swapCosts[2] >> swapCosts[3];
-            for (int i = 0; i < numPlayers; i++) {
-                chips[i] = startingChips;
-                oppAlive[i] = true;
-            }
-            activePlayers = numPlayers;
+            for (int i = 0; i < numPlayers; i++) chips[i] = startingChips;
         }
         else if (cmd == "HAND_START") {
             std::istringstream iss(line);
             std::string tmp;
             int hn, ds, sb_seat, bb_seat, sb_amt, bb_amt;
             iss >> tmp >> hn >> ds >> sb_seat >> bb_seat >> sb_amt >> bb_amt;
-            handNumber = hn; dealerSeat = ds; smallBlind = sb_amt; bigBlind = bb_amt;
+            bigBlind = bb_amt;
             nHole = 0; nBoard = 0; street = 0; lastSwapIdx = -1; actionCountThisStreet = 0;
-            oppRaisesThisStreet = 0;
 
-            if (activePlayers == 2) {
-                inPosition = (mySeat != ds);
-            } else {
-                inPosition = (mySeat == ds);
-            }
         }
         else if (cmd == "CHIPS") {
             std::istringstream iss(line);
@@ -277,8 +257,7 @@ int main() {
             nHole = 2;
         }
         else if (cmd == "DEAL_FLOP") {
-            street = 1; actionCountThisStreet = 0; oppRaisesThisStreet = 0;
-            size_t p = sp + 1;
+            street = 1; actionCountThisStreet = 0;            size_t p = sp + 1;
             nBoard = 0;
             board[nBoard++] = parseCard(line.c_str() + p);
             p = line.find(' ', p) + 1;
@@ -287,12 +266,10 @@ int main() {
             board[nBoard++] = parseCard(line.c_str() + p);
         }
         else if (cmd == "DEAL_TURN") {
-            street = 2; actionCountThisStreet = 0; oppRaisesThisStreet = 0;
-            board[nBoard++] = parseCard(line.c_str() + sp + 1);
+            street = 2; actionCountThisStreet = 0;            board[nBoard++] = parseCard(line.c_str() + sp + 1);
         }
         else if (cmd == "DEAL_RIVER") {
-            street = 3; actionCountThisStreet = 0; oppRaisesThisStreet = 0;
-            board[nBoard++] = parseCard(line.c_str() + sp + 1);
+            street = 3; actionCountThisStreet = 0;            board[nBoard++] = parseCard(line.c_str() + sp + 1);
         }
         else if (cmd == "REDRAW_FLOP") {
             nBoard = 0;
@@ -505,31 +482,6 @@ int main() {
                         std::cout << "FOLD" << std::endl;
                     }
                 }
-            }
-        }
-        else if (cmd == "ACTION") {
-            std::istringstream iss(line);
-            std::string tmp, action;
-            int seat;
-            iss >> tmp >> seat >> action;
-            if (seat != mySeat && seat >= 0 && seat < numPlayers) {
-                oppActions[seat]++;
-                if (action == "RAISE" || action == "ALLIN") {
-                    oppRaises[seat]++;
-                    oppRaisesThisStreet++;
-                } else if (action == "FOLD") {
-                    oppFolds[seat]++;
-                }
-            }
-        }
-        else if (cmd == "ELIMINATED") {
-            std::istringstream iss(line);
-            std::string tmp;
-            int seat;
-            iss >> tmp >> seat;
-            if (seat >= 0 && seat < numPlayers) {
-                oppAlive[seat] = false;
-                activePlayers--;
             }
         }
     }
