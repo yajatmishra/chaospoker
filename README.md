@@ -1,4 +1,4 @@
-# Chaos PokerBot Assignment
+# Chaos PokerBot : Jump Trading x Tinkercademy Bootcamp Round 2
 
 **Name:** Yajat Mishra
 
